@@ -1,4 +1,131 @@
-<!DOCTYPE HTML> 
+thinkphp 模板使用后的代码：
+CommonAction.class.php：
+<?php
+		class CommonAction extends Action{
+			public function _initialize(){
+				if(!isset($_SESSION['uid'])||!isset($_SESSION['username'])){
+					$this->redirect('Admin/Login/index');
+				}
+			}
+			
+		}
+IndexAction.class.php：
+
+<?php
+		//后台首页控制器
+		class IndexAction extends CommonAction{
+			public function index(){
+					$this->display();
+			}
+			public function logout(){
+				session_unset();
+				session_destroy();
+				$this->redirect('Admin/Index/index');
+			}
+		}
+?>
+LoginAction.class.php：
+
+<?php
+		//登陆控制器
+		class LoginAction extends Action{
+				public function index(){
+					$this->display();
+				}
+				public function verify(){
+					import('ORG.Util.Image');
+					Image::buildImageVerify(1,1,'png',80,25);
+				}
+				public function login(){
+					if(!IS_POST) halt('页面不存在');
+					if(I('code','','md5')!=session('verify')){
+						$this->error('验证码错误');
+					}
+					$username = I('username');
+					$user = M('user')->where(array('username'=>$username))->find();
+					if(!$user||$user['password'!=$pwd])
+					{
+						$this->error('账号或者密码错误');
+					}
+					session('uid',$user['id']);
+					session('username',$user['username']);
+					$this->redirect('Admin/Index/index');
+				}
+
+		}
+
+index.html:
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<head>
+</head>
+<body>
+		<div>
+				<dl>
+					<h1>主界面</h1>
+					<a href='courseList.php'>管理课程</a><br/>
+					<a href='addcourse.php'>添加课程</a><br/>
+					<a href='#'>查询课程</a><br/>
+					<a href="{:U('Admin/Index/logout')}">退出系统</a><br/>
+				</dl>
+		</div>
+</body>
+</html>
+
+Login_index.html:
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<link rel="stylesheet" href="__PUBLIC__/Css/login.css" />
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+		<script type="text/javascript" src="__PUBLIC__/Js/jquery-1.7.2.min.js"></script>
+		<script type="text/javascript" src="__PUBLIC__/Js/login.js"></script>
+		<script type="text/javascript">
+			verifyURL = '{:U("Admin/Login/verify",'','')}';
+		</script>
+	</head>
+	<body>
+		<div id="top">
+
+		</div>
+		<div class="login">	
+			<form action="{:U('Admin/Login/login')}" method="post" id="login">
+			<div class="title">
+				你学我会
+			</div>
+			<table border="1" width="100%">
+				<tr>
+					<th>帐号:</th>
+					<td>
+						<input type="username" name="username" class="len250"/>
+					</td>
+				</tr>
+				<tr>
+					<th>密码:</th>
+					<td>
+						<input type="password" class="len250" name="password"/>
+					</td>
+				</tr>
+				<tr>
+					<th>验证码:</th>
+					<td>
+							<input type="code" class="len250" name="code"/> <img src="{:U('Admin/Login/verify','','')}" id="code"/> <a href="javascript:void(change_code(this));">看不清</a>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2" style="padding-left:160px;"> <input type="submit" class="submit" value="登录"/></td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	</body>
+</html>
+
+
+以前的代码：
+/*<!DOCTYPE HTML> 
 <html>
 <head>
 <style>
@@ -101,3 +228,4 @@ echo $gender;
 
 </body>
 </html>
+*/
